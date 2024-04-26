@@ -66,7 +66,6 @@ public class CubicSpline {
 		Stroke s = new BasicStroke(3.0f,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND,10.0f);
 		g2.setStroke(s);
 		g2.setColor(Color.LIGHT_GRAY);
-		int size = 6;
 		for (int i = 0; i < 100; i ++) {
 			Pose2d p1 = getPose2d(i/100.0);
 			Pose2d p2 = getPose2d((i+1)/100.0);
