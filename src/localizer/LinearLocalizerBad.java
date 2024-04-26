@@ -1,10 +1,10 @@
 package localizer;
 
 import utils.Pose2d;
-import utils.cubicSpline;
+import utils.CubicSpline;
 
 public class LinearLocalizerBad extends Localizer {
-	public void update(cubicSpline p,int n) {//path with n subdivisions
+	public void update(CubicSpline p,int n) {//path with n subdivisions
 		super.update(p,n);
 		double t1 = 0;
 		Pose2d last = l.get(0);
@@ -27,7 +27,7 @@ public class LinearLocalizerBad extends Localizer {
 	}
 	
 	public static void main(String[] args) {
-		cubicSpline s = new cubicSpline(new Pose2d(100,155,Math.toRadians(0)),new Pose2d(300,205,Math.toRadians(0)));
+		CubicSpline s = new CubicSpline(new Pose2d(100,155,Math.toRadians(0)),new Pose2d(300,205,Math.toRadians(0)));
 		double last = 0;
 		Localizer l = new LinearLocalizerBad();
 		for (int i = 1; i <= 1024; i *= 2) {

@@ -23,8 +23,8 @@ import localizer.ConstAccelLocalizer;
 import localizer.Localizer;
 import utils.Pose2d;
 import utils.Robot;
-import utils.cubicSpline;
-import utils.drawUtil;
+import utils.CubicSpline;
+import utils.DrawUtil;
 
 public class LocalizerDemostrationVideo extends JPanel implements MouseListener, ActionListener, KeyListener{
 
@@ -45,7 +45,7 @@ public class LocalizerDemostrationVideo extends JPanel implements MouseListener,
 	Robot r;
 	Pose2d currentPose;
 	ArrayList<Pose2d> poseHistory, odoHistory;
-	cubicSpline[] path = new cubicSpline[5];
+	CubicSpline[] path = new CubicSpline[5];
 	long start = System.currentTimeMillis();
 	robotCase rc;
 	int fidelity = 1;
@@ -70,7 +70,7 @@ public class LocalizerDemostrationVideo extends JPanel implements MouseListener,
 				new Pose2d(600,705,Math.toRadians(135))
 				};
 		for (int i = 0; i < path.length; i ++) {
-			path[i] = new cubicSpline(arr[i],arr[i+1]);
+			path[i] = new CubicSpline(arr[i],arr[i+1]);
 		}
 		
 		this.l = l;
@@ -109,10 +109,10 @@ public class LocalizerDemostrationVideo extends JPanel implements MouseListener,
 		Stroke s = new BasicStroke((float)(4),BasicStroke.CAP_SQUARE,BasicStroke.JOIN_MITER,10.0f);
 		g2.setStroke(s);
 
-		drawUtil.drawAxis(g2,path[0].getPose2d(0),frame);
+		DrawUtil.drawAxis(g2,path[0].getPose2d(0),frame);
 		
 		g2.setColor(Color.LIGHT_GRAY);
-		drawUtil.drawLines(poseHistory,g2,frame);
+		DrawUtil.drawLines(poseHistory,g2,frame);
 
 		t = (System.nanoTime() - start)/1.0E9;
 		if (i != path.length) {
@@ -141,7 +141,7 @@ public class LocalizerDemostrationVideo extends JPanel implements MouseListener,
 						poseHistory.add(currentPose);
 					}
 					g2.setColor(Color.magenta);
-					l.update(new cubicSpline(path[i],t/6.0),n);
+					l.update(new CubicSpline(path[i],t/6.0),n);
 					l.draw(frame.getHeight(),g2);
 					oneTimeError = currentPose.getDist(l.l.get(l.l.size()-1));
 					break;
@@ -207,7 +207,7 @@ public class LocalizerDemostrationVideo extends JPanel implements MouseListener,
 		
 		lastT = t;
 		g2.setColor(Color.magenta);
-		drawUtil.drawLines(odoHistory,g2,frame);
+		DrawUtil.drawLines(odoHistory,g2,frame);
 		g2.setColor(Color.black);
 		r.update(frame.getHeight(),currentPose,g);
 	}

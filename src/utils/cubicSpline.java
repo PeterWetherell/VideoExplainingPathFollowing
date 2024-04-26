@@ -5,21 +5,21 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
 
-public class cubicSpline {
+public class CubicSpline {
 	public static final int FIDELITY = 8192;
 	double x [];
 	double y [];
 	static double mag = 400;
 	double limit = 1;
-	public cubicSpline(cubicSpline s, double limit) {
+	public CubicSpline(CubicSpline s, double limit) {
 		x = s.x;
 		y = s.y;
 		this.limit = limit;
 	}
-	public cubicSpline(Pose2d p1, Pose2d p2) {
+	public CubicSpline(Pose2d p1, Pose2d p2) {
 		this(p1,new Pose2d(p1.x + mag * Math.cos(p1.heading),p1.y + 100 * Math.sin(p1.heading)),p2,new Pose2d(p2.x + mag * Math.cos(p2.heading),p2.y + 100 * Math.sin(p2.heading)));
 	}
-	public cubicSpline(Pose2d p1, Pose2d t1, Pose2d p2, Pose2d t2) {
+	public CubicSpline(Pose2d p1, Pose2d t1, Pose2d p2, Pose2d t2) {
 		x = new double[4];
 		y = new double[4];
 

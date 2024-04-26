@@ -4,7 +4,7 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 
 import utils.Pose2d;
-import utils.cubicSpline;
+import utils.CubicSpline;
 
 public class Localizer {
 	public ArrayList<Double> t;
@@ -17,7 +17,7 @@ public class Localizer {
 		relativeMovement = new ArrayList<Pose2d>();
 	}
 	
-	public Localizer(cubicSpline p,int n) {//path with n subdivisions
+	public Localizer(CubicSpline p,int n) {//path with n subdivisions
 		l = new ArrayList<Pose2d>();
 		t = new ArrayList<Double>();
 		relativeMovement = new ArrayList<Pose2d>();
@@ -25,7 +25,7 @@ public class Localizer {
 		t.add(0.0);
 	}
 	
-	public void update(cubicSpline p,int n) {
+	public void update(CubicSpline p,int n) {
 		l.clear();
 		t.clear();
 		relativeMovement.clear();

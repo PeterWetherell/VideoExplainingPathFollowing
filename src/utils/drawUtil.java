@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
-public class drawUtil {
+public class DrawUtil {
 	
 	public static void drawAxis(Graphics2D g2, Pose2d center, JFrame frame) {
 		double yAxisLength = 600;
