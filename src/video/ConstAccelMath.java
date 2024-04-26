@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,6 +24,7 @@ import localizer.Localizer;
 import utils.Pose2d;
 import utils.Robot;
 import utils.cubicSpline;
+import utils.drawUtil;
 
 public class ConstAccelMath extends JPanel implements MouseListener, ActionListener, KeyListener{
 
@@ -65,12 +67,18 @@ public class ConstAccelMath extends JPanel implements MouseListener, ActionListe
 		frame = new JFrame("VideoExplanation");
 		frame.setSize(1600, 934);
 		frame.add(this);
-
-		path[0] = new cubicSpline(new Pose2d(100,155,Math.toRadians(0)),new Pose2d(300,205,Math.toRadians(0)));
-		path[1] = new cubicSpline(new Pose2d(300,205,Math.toRadians(0)), new Pose2d(450,405,Math.toRadians(75)));
-		path[2] = new cubicSpline(new Pose2d(450,405,Math.toRadians(75)), new Pose2d(650,505,Math.toRadians(65)));
-		path[3] = new cubicSpline(new Pose2d(650,505,Math.toRadians(65)),new Pose2d(800,655,Math.toRadians(90)));
-		path[4] = new cubicSpline(new Pose2d(800,655,Math.toRadians(90)),new Pose2d(600,805,Math.toRadians(135)));
+		
+		Pose2d[] arr = {
+				new Pose2d(100,155,Math.toRadians(0)),
+				new Pose2d(300,205,Math.toRadians(0)),
+				new Pose2d(450,405,Math.toRadians(75)),
+				new Pose2d(650,445,Math.toRadians(65)),
+				new Pose2d(800,555,Math.toRadians(90)),
+				new Pose2d(600,705,Math.toRadians(135))
+				};
+		for (int i = 0; i < path.length; i ++) {
+			path[i] = new cubicSpline(arr[i],arr[i+1]);
+		}
 		
 		r = new Robot(path[0].getPose2d(0));
 		
@@ -94,13 +102,22 @@ public class ConstAccelMath extends JPanel implements MouseListener, ActionListe
 		super.paintComponent(g);
 		
 		Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        g2.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+        g2.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+		
 		Stroke s = new BasicStroke((float)(4),BasicStroke.CAP_SQUARE,BasicStroke.JOIN_MITER,10.0f);
 		g2.setStroke(s);
 
-		drawAxis(g2);
+		drawUtil.drawAxis(g2,path[0].getPose2d(0),frame);
 		
 		g2.setColor(Color.LIGHT_GRAY);
-		drawLines(poseHistory,g2);
+		drawUtil.drawLines(poseHistory,g2,frame);
 
 		t = (System.nanoTime() - start)/1.0E9;
 		if (i != path.length) {
@@ -113,30 +130,30 @@ public class ConstAccelMath extends JPanel implements MouseListener, ActionListe
 					}
 					break;
 				case followTraj:
-					if (t > 3) {
+					if (t > 6) {
 						reset();
 						rc = robotCase.trajDrawWait;
 						l = new ConstAccelLocalizer(path[i],n);
 						currPoseTimer = 0;
-						dLT = 0.25 + (l.l.get(0).getDist(odoHistory.get(odoHistory.size()-1)))/200.0;
+						dLT = 0.5 + (l.l.get(0).getDist(odoHistory.get(odoHistory.size()-1)))/100.0;
 						currentPose = path[i].getPose2d(1);
 						poseHistory.add(currentPose);
 						break;
 					}
-					if (t/3.0-currPoseTimer > 0.01) {
-						currPoseTimer = t/3.0;
-						currentPose = path[i].getPose2d(t/3.0);
+					if (t/6.0-currPoseTimer > 0.01) {
+						currPoseTimer = t/6.0;
+						currentPose = path[i].getPose2d(t/6.0);
 						poseHistory.add(currentPose);
 					}
 					g2.setColor(Color.magenta);
-					l = new ConstAccelLocalizer(new cubicSpline(path[i],t/3.0),n);
+					l = new ConstAccelLocalizer(new cubicSpline(path[i],t/6.0),n);
 					l.draw(frame.getHeight(),g2);
 					oneTimeError = currentPose.getDist(l.l.get(l.l.size()-1));
 					break;
 				case trajDrawWait:
 					g2.setColor(Color.magenta);
 					l.draw(frame.getHeight(),g2);
-					if (t > 0.25) {
+					if (t > 0.5) {
 						reset();
 						rc = robotCase.drawLocalization;
 					}
@@ -164,7 +181,7 @@ public class ConstAccelMath extends JPanel implements MouseListener, ActionListe
 			}
 		}
 		else {
-			if (t > 0.5 && n < 100) {
+			if (t > 1.5 && n < 100) {
 				n *= 2;
 				reset();
 				odoHistory.clear();
@@ -195,7 +212,7 @@ public class ConstAccelMath extends JPanel implements MouseListener, ActionListe
 		
 		lastT = t;
 		g2.setColor(Color.magenta);
-		drawLines(odoHistory,g2);
+		drawUtil.drawLines(odoHistory,g2,frame);
 		g2.setColor(Color.black);
 		r.update(frame.getHeight(),currentPose,g);
 	}
@@ -209,33 +226,6 @@ public class ConstAccelMath extends JPanel implements MouseListener, ActionListe
 	public void append(ArrayList<Pose2d> p , ArrayList<Pose2d> q) {
 		for (int i = 1; i < q.size(); i ++) {
 			p.add(q.get(i));
-		}
-	}
-
-	public void drawAxis(Graphics2D g2) {
-		double yAxisLength = 500;
-		double xAxisLength = 1300;
-		Pose2d center = path[0].getPose2d(0);
-		double size = 6;
-		g2.setColor(Color.GRAY);
-		g2.drawLine((int)(center.x), (int)(frame.getHeight()-center.y), (int)(center.x), (int)(frame.getHeight()-center.y - yAxisLength));
-		Polygon p2 = new Polygon();
-		p2.addPoint((int)(center.x - size), (int)(frame.getHeight()-center.y - yAxisLength));
-		p2.addPoint((int)(center.x + size), (int)(frame.getHeight()-center.y - yAxisLength));
-		p2.addPoint((int)(center.x), (int)(frame.getHeight()-center.y - yAxisLength - 2 * size));
-		g2.fillPolygon(p2);
-		
-		g2.drawLine((int)(center.x), (int)(frame.getHeight()-center.y), (int)(center.x + xAxisLength), (int)(frame.getHeight()-center.y));
-		Polygon p1 = new Polygon();
-		p1.addPoint((int)(center.x + xAxisLength), (int)(frame.getHeight()-center.y - size));
-		p1.addPoint((int)(center.x + xAxisLength), (int)(frame.getHeight()-center.y + size));
-		p1.addPoint((int)(center.x + xAxisLength + 2 * size), (int)(frame.getHeight()-center.y));
-		g2.fillPolygon(p1);
-	}
-	
-	public void drawLines(ArrayList<Pose2d> p, Graphics2D g2) {
-		for (int i = 1; i < p.size(); i ++) {
-			g2.drawLine((int)p.get(i-1).x,(int)(frame.getHeight()-p.get(i-1).y),(int)p.get(i).x,(int)(frame.getHeight()-p.get(i).y));
 		}
 	}
 	
