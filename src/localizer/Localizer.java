@@ -10,6 +10,13 @@ public class Localizer {
 	public ArrayList<Double> t;
 	public ArrayList<Pose2d> l;
 	public ArrayList<Pose2d> relativeMovement;
+	
+	public Localizer() {
+		l = new ArrayList<Pose2d>();
+		t = new ArrayList<Double>();
+		relativeMovement = new ArrayList<Pose2d>();
+	}
+	
 	public Localizer(cubicSpline p,int n) {//path with n subdivisions
 		l = new ArrayList<Pose2d>();
 		t = new ArrayList<Double>();
@@ -17,6 +24,15 @@ public class Localizer {
 		l.add(p.getPose2d(0.0));
 		t.add(0.0);
 	}
+	
+	public void update(cubicSpline p,int n) {
+		l.clear();
+		t.clear();
+		relativeMovement.clear();
+		l.add(p.getPose2d(0.0));
+		t.add(0.0);
+	}
+	
 	public void adjust(Pose2d p) {
 		for (int i = 0; i < l.size(); i ++) {
 			l.set(i, l.get(i).add(p));

@@ -5,8 +5,10 @@ import utils.cubicSpline;
 
 public class ConstJerkLocalizer extends Localizer {
 	public static final double fidelity = 1E-10;
-	public ConstJerkLocalizer(cubicSpline p,int n) {//path with n subdivisions
-		super(p,n);
+	
+	@Override
+	public void update(cubicSpline p,int n) {//path with n subdivisions
+		super.update(p,n);
 		double t1 = 0;
 		Pose2d last = l.get(0);
 		double h1 = last.heading;
@@ -70,8 +72,9 @@ public class ConstJerkLocalizer extends Localizer {
 	
 	public static void main(String[] args) {
 		cubicSpline s = new cubicSpline(new Pose2d(100,155,Math.toRadians(0)),new Pose2d(300,205,Math.toRadians(0)));
+		Localizer l = new ConstJerkLocalizer();
 		for (int i = 1; i < 1024; i *= 2) {
-			Localizer l = new ConstJerkLocalizer(s,i);
+			l.update(s, i);
 			System.out.println(i + ", " + l.l.get(l.l.size()-1).getDist(s.getPose2d(1)));
 		}
 		//This shows that arc localization is about O(h^4)

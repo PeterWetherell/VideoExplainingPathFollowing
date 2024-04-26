@@ -5,8 +5,10 @@ import utils.cubicSpline;
 
 public class ConstAccelLocalizer extends Localizer {
 	public static final double fidelity = 1E-10;
-	public ConstAccelLocalizer(cubicSpline p,int n) {//path with n subdivisions
-		super(p,n);
+	
+	@Override
+	public void update(cubicSpline p,int n) {//path with n subdivisions
+		super.update(p,n);
 		double t1 = 0;
 		Pose2d last = l.get(0);
 		double h1 = last.heading;
@@ -66,16 +68,10 @@ public class ConstAccelLocalizer extends Localizer {
 	}
 	
 	public static void main(String[] args) {
-		/*
-		AdaptiveQuaderature x = new AdaptiveQuaderature(
-				new double[] {0.0682264334614,0.000408020108956},
-				new double[] {0.0581560285465,-0.0182506740405,-0.000196256872469}
-				);
-		System.out.println(x.evaluateCos(1E-10, 0, 1,0));
-		*/
 		cubicSpline s = new cubicSpline(new Pose2d(100,155,Math.toRadians(0)),new Pose2d(300,205,Math.toRadians(0)));
+		Localizer l = new ConstAccelLocalizer();
 		for (int i = 1; i < 1024; i *= 2) {
-			Localizer l = new ConstAccelLocalizer(s,i);
+			l.update(s,i);
 			System.out.println(i + ", " + l.l.get(l.l.size()-1).getDist(s.getPose2d(1)));
 		}
 		//This shows that arc localization is about O(h^3)
