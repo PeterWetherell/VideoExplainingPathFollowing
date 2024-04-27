@@ -57,7 +57,7 @@ public class DrawRobotVideo extends JPanel implements ActionListener{
 		
 		start = System.currentTimeMillis();
 		
-		t = new Timer(15,this);
+		t = new Timer(5,this);
 		t.start();
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

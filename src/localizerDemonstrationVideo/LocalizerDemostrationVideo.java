@@ -86,7 +86,7 @@ public class LocalizerDemostrationVideo extends JPanel implements MouseListener,
 		odoHistory = new ArrayList<>();
 		odoHistory.add(currentPose);
 		
-		timer = new Timer(15,this);
+		timer = new Timer(5,this);
 		timer.start();
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
