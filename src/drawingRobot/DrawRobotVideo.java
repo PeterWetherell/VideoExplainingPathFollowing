@@ -5,9 +5,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -31,6 +33,11 @@ public class DrawRobotVideo extends JPanel implements ActionListener{
 		startWheels,
 		finishWheels,
 		drawOdo,
+		delayBeforeAxis,
+		drawAxis,
+		moveRobotBack,
+		rotateRobot,
+		moveForward,
 		idle;
 	}
 	
@@ -39,6 +46,8 @@ public class DrawRobotVideo extends JPanel implements ActionListener{
 	Pose2d center;
 	double scale = 4.0;
 	robotCase rc;
+	
+	private static final DecimalFormat decfor = new DecimalFormat("0.00"); 
 	
 	public static void main(String[] args) {
 		DrawRobotVideo drive = new DrawRobotVideo();
@@ -78,6 +87,8 @@ public class DrawRobotVideo extends JPanel implements ActionListener{
 		Stroke s = new BasicStroke((float)(scale*4),BasicStroke.CAP_SQUARE,BasicStroke.JOIN_MITER,10.0f);
 		g2.setStroke(s);
 		g2.setColor(Color.DARK_GRAY);
+		
+		double m8 = 0;
 
 		double t = (System.currentTimeMillis() - start)/(1000.0);
 		switch (rc){
@@ -144,15 +155,114 @@ public class DrawRobotVideo extends JPanel implements ActionListener{
 				g2.drawLine((int)(center.x - r.scale * 50), (int)(center.y - r.scale * 50), (int)(center.x - r.scale * 50), (int)(center.y - r.scale * 50 + r.scale * 100 * m1));
 				g2.drawLine((int)(center.x - r.scale * 50), (int)(center.y - r.scale * 50), (int)(center.x - r.scale * 50 + r.scale * 100 * m1), (int)(center.y - r.scale * 50));
 				switch(rc) {
-					case drawOdo:		if (t > 0.5) {start = System.currentTimeMillis(); rc = robotCase.idle;} break;
+					case drawOdo:		if (t > 0.5) {start = System.currentTimeMillis(); rc = robotCase.delayBeforeAxis;} break;
 					case finishWheels:	if (t > 1) {start = System.currentTimeMillis(); rc = robotCase.drawOdo;} break;
 					case startWheels:	if (t > 1) {start = System.currentTimeMillis(); rc = robotCase.finishWheels;} break;
-					case finishChassis:	if (t > 2) {start = System.currentTimeMillis(); rc = robotCase.startWheels;} break;
+					case finishChassis:	if (t > 2.5) {start = System.currentTimeMillis(); rc = robotCase.startWheels;} break;
 					case startChassis:	if (t > 2) {start = System.currentTimeMillis(); rc = robotCase.finishChassis;} break;
 				}
 				break;
-			case idle:
+			case delayBeforeAxis:
+				double m7 = Math.min(t/3,1);
+				center.x = 800 - 500*m7;
+				center.y = 450 + 150*m7;
+				center.heading = Math.toRadians(-90)*(1-m7);
+				r.p = center.clone();
 				r.drawRobot(g2);
+				if (t > 3) {
+					start = System.currentTimeMillis();
+					rc = robotCase.drawAxis;
+				}
+				break;
+			case idle:
+			case moveForward:
+				double m10 = 1;
+				if (rc == robotCase.moveForward) {
+					m10 = Math.min(t/3,1);
+				}
+				r.p.x = center.x + 300*m10;
+				r.p.y = center.y - 300*m10;
+			case rotateRobot:
+				double m9 = 1;
+				if (rc == robotCase.rotateRobot) {
+					m9 = Math.min(t/2,1);
+				}
+				r.p.heading = Math.toRadians(-45*m9);
+				
+				g2.setColor(Color.black);
+				g2.setFont(big);
+				double rx = (r.p.x - center.x)/30;
+				double ry = (center.y - r.p.y)/30;
+				double relX = Math.sqrt(rx*rx + ry*ry);
+				g2.drawString("Θ = " + decfor.format(Math.toDegrees(r.p.heading*-1)), (int)131, (int)80);
+				g2.drawString("X = " + decfor.format(rx), (int)131, (int)140);
+				g2.drawString("Y = " + decfor.format(ry), (int)131, (int)200);
+				g2.drawString("relX = " + decfor.format(relX), (int)40, (int)260);
+				g2.drawString("relY = 0.00", (int)40, (int)320);
+
+				g2.setColor(Color.red);
+				g2.drawLine((int)r.p.x, (int)center.y, (int)r.p.x, (int)r.p.y);
+				g2.setColor(Color.blue);
+				g2.drawLine((int)center.x, (int)r.p.y, (int)r.p.x, (int)r.p.y);
+				g2.setColor(Color.magenta);
+				g2.drawLine((int)center.x, (int)center.y, (int)r.p.x, (int)r.p.y);
+				
+			case moveRobotBack:
+				m8 = 1;
+				if (rc == robotCase.moveRobotBack) {
+					m8 = Math.min(t/3,1);
+					center.x = 600 - 300*(1-m8); // 300 -> 600
+					center.y = 650 - 50*(1-m8);
+					r.p = center.clone();
+				}
+				
+			case drawAxis:
+				double m6 = 1;
+				if (rc == robotCase.drawAxis) {
+					m6 = Math.min(t/3,1);
+				}
+				
+				double yAxisLength = 400*m6;
+				double xAxisLength = 800*m6 - 400*m8;
+				double size = 20;
+				g2.setColor(Color.GRAY);
+				g2.drawLine((int)(center.x), (int)(center.y), (int)(center.x), (int)(center.y - yAxisLength));
+				Polygon p2 = new Polygon();
+				p2.addPoint((int)(center.x - size), (int)(center.y - yAxisLength));
+				p2.addPoint((int)(center.x + size), (int)(center.y - yAxisLength));
+				p2.addPoint((int)(center.x), (int)(center.y - yAxisLength - 2 * size));
+				g2.fillPolygon(p2);
+				
+				g2.drawLine((int)(center.x), (int)(center.y), (int)(center.x + xAxisLength), (int)(center.y));
+				Polygon p1 = new Polygon();
+				p1.addPoint((int)(center.x + xAxisLength), (int)(center.y - size));
+				p1.addPoint((int)(center.x + xAxisLength), (int)(center.y + size));
+				p1.addPoint((int)(center.x + xAxisLength + 2 * size), (int)(center.y));
+				g2.fillPolygon(p1);
+				
+				g2.setColor(Color.black);
+				g2.setFont(big);
+				g2.drawString("X", (int)(center.x + xAxisLength), (int)(center.y+70));
+				g2.drawString("Y", (int)(center.x - 70), (int)(center.y-yAxisLength));
+				
+				r.drawRobot(g2);
+				
+				if (rc == robotCase.moveForward && t > 3.5) {
+					start = System.currentTimeMillis();
+					rc = robotCase.idle;
+				}
+				else if (rc == robotCase.rotateRobot && t > 2) {
+					start = System.currentTimeMillis();
+					rc = robotCase.moveForward;
+				}
+				else if (rc == robotCase.moveRobotBack && t > 4) {
+					start = System.currentTimeMillis();
+					rc = robotCase.rotateRobot;
+				}
+				else if (rc == robotCase.drawAxis && t > 3) {
+					start = System.currentTimeMillis();
+					rc = robotCase.moveRobotBack;
+				}
 				break;
 		}
 	}
