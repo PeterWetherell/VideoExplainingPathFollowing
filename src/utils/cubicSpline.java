@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 
 public class CubicSpline {
-	public static final int FIDELITY = 8192;
+	public static final int FIDELITY = 32768;
 	double x [];
 	double y [];
 	static double mag = 400;

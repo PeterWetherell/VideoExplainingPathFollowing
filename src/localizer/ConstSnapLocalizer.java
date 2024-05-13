@@ -9,11 +9,11 @@ public class ConstSnapLocalizer extends Localizer {
 	static double[] times = {-3,-2,-1,0,1};
 	static double[] q = {24,-6,4,-6,24};
 	static double[] j = {
-			(times[1]+times[2]+times[3]+times[4])/q[0],
-			(times[0]+times[2]+times[3]+times[4])/q[1],
-			(times[0]+times[1]+times[3]+times[4])/q[2],
-			(times[0]+times[1]+times[2]+times[4])/q[3],
-			(times[0]+times[1]+times[2]+times[3])/q[4]
+			2/q[0],
+			3/q[1],
+			4/q[2],
+			5/q[3],
+			6/q[4]
 	};
 	static double[] a = {
 			-1/q[0],
@@ -21,6 +21,14 @@ public class ConstSnapLocalizer extends Localizer {
 			1/q[2],
 			5/q[3],
 			11/q[4]
+			
+	};
+	static double[] v = {
+			-2/q[0],
+			-3/q[1],
+			-6/q[2],
+			-5/q[3],
+			6/q[4]
 			
 	};
 	
@@ -33,44 +41,45 @@ public class ConstSnapLocalizer extends Localizer {
 		double l1RH = 0, l1RX = 0, l1RY = 0;
 		double l2RH = 0, l2RX = 0, l2RY = 0;
 		double l3RH = 0, l3RX = 0, l3RY = 0;
-		double l4RH = 0, l4RX = 0, l4RY = 0;
 		
 		for (int i = 0; i < n; i++) {
 			double t2 = ((double)i+1.0)/((double) n);
 			
-			double rx = p.getRelX(t2, 0);
-			double ry = p.getRelY(t2, 0);
-			double rh = p.getPose2d(t2).heading;
+			double rx = p.getRelX(t2, t1);
+			double ry = p.getRelY(t2, t1);
+			double rh = p.getPose2d(t2).heading-h1;
 			//derive the equations for deltaX and deltaY
-			double[] rxv = {l4RX-l1RX, l3RX-l1RX, l2RX-l1RX, 0, rx-l1RX};
+			double[] rxv = {-1*(l3RX+l2RX+l1RX), -1*(l2RX+l1RX), -1*(l1RX), 0, rx};
+			double vrx = (rxv[0]*v[0]+rxv[1]*v[1]+rxv[2]*v[2]+rxv[3]*v[3]+rxv[4]*v[4]);
 			double arx = (rxv[0]*a[0]+rxv[1]*a[1]+rxv[2]*a[2]+rxv[3]*a[3]+rxv[4]*a[4]);
-			double jrx = (rxv[0]*j[0]+rxv[1]*j[1]+rxv[2]*j[2]+rxv[3]*j[3]+rxv[4]*j[4]) * -1;
-			double srx = rxv[0]/q[0]+rxv[1]/q[1]+rxv[2]/q[2]+rxv[3]/q[3]+rxv[4]/q[4];
-			double vrx = (rx-srx-arx-jrx-l1RX);
+			double jrx = (rxv[0]*j[0]+rxv[1]*j[1]+rxv[2]*j[2]+rxv[3]*j[3]+rxv[4]*j[4]);
+			double srx = (rx-vrx-arx-jrx);
+			//double srx = rxv[0]/q[0]+rxv[1]/q[1]+rxv[2]/q[2]+rxv[3]/q[3]+rxv[4]/q[4];
 			//v_x = vrx + arx*t
-			double[] ryv = {l4RY-l1RY, l3RY-l1RY, l2RY-l1RY, 0, ry-l1RY};
+			double[] ryv = {-1*(l3RY+l2RY+l1RY), -1*(l2RY+l1RY), -1*(l1RY), 0, ry};
+			double vry = (ryv[0]*v[0]+ryv[1]*v[1]+ryv[2]*v[2]+ryv[3]*v[3]+ryv[4]*v[4]);
 			double ary = (ryv[0]*a[0]+ryv[1]*a[1]+ryv[2]*a[2]+ryv[3]*a[3]+ryv[4]*a[4]);
-			double jry = (ryv[0]*j[0]+ryv[1]*j[1]+ryv[2]*j[2]+ryv[3]*j[3]+ryv[4]*j[4]) * -1;
-			double sry = ryv[0]/q[0]+ryv[1]/q[1]+ryv[2]/q[2]+ryv[3]/q[3]+ryv[4]/q[4];
-			double vry = (ry-sry-ary-jry-l1RY);
+			double jry = (ryv[0]*j[0]+ryv[1]*j[1]+ryv[2]*j[2]+ryv[3]*j[3]+ryv[4]*j[4]);
+			double sry = (ry-vry-ary-jry);
+			//double sry = ryv[0]/q[0]+ryv[1]/q[1]+ryv[2]/q[2]+ryv[3]/q[3]+ryv[4]/q[4];
 			//v_y = vry + ary*t
-			double[] rhv = {l4RH-l1RH, l3RH-l1RH, l2RH-l1RH, 0, rh-l1RH};
+			double[] rhv = {-1*(l3RH+l2RH+l1RH), -1*(l2RH+l1RH), -1*(l1RH), 0, rh};
+			double vrh = (rhv[0]*v[0]+rhv[1]*v[1]+rhv[2]*v[2]+rhv[3]*v[3]+rhv[4]*v[4]);
 			double arh = (rhv[0]*a[0]+rhv[1]*a[1]+rhv[2]*a[2]+rhv[3]*a[3]+rhv[4]*a[4]);
-			double jrh = (rhv[0]*j[0]+rhv[1]*j[1]+rhv[2]*j[2]+rhv[3]*j[3]+rhv[4]*j[4]) * -1;
-			double srh = rhv[0]/q[0]+rhv[1]/q[1]+rhv[2]/q[2]+rhv[3]/q[3]+rhv[4]/q[4];
-			double vrh = (rh-srh-arh-jrh-l1RH);
+			double jrh = (rhv[0]*j[0]+rhv[1]*j[1]+rhv[2]*j[2]+rhv[3]*j[3]+rhv[4]*j[4]);
+			double srh = (rh-vrh-arh-jrh);
+			//double srh = rhv[0]/q[0]+rhv[1]/q[1]+rhv[2]/q[2]+rhv[3]/q[3]+rhv[4]/q[4];
 			//h = h1 + vry*t + ary*t^2
 			
-			//System.out.println(vrx+2*arx+3*jrx-rx);
-			//System.out.println(l1RH + " " + h1);
-			//System.out.println(vrx+arx+jrx+srx);
-			AdaptiveQuaderature x = new AdaptiveQuaderature(new double[] {vrx,2.0*arx,3.0*jrx,4.0*srx},new double[] {l1RH,vrh,arh,jrh,srh});
-			AdaptiveQuaderature y = new AdaptiveQuaderature(new double[] {vry,2.0*ary,3.0*jry,4.0*srx},new double[] {l1RH,vrh,arh,jrh,srh});
+			//System.out.println(rxv[0] + " " + rxv[1] + " " + rxv[2] + " " + rxv[3]+ " " + rxv[4]);
+			//System.out.println(vrx + " " + arx + " " + jrx + " " + srx);
+			AdaptiveQuaderature x = new AdaptiveQuaderature(new double[] {vrx,2.0*arx,3.0*jrx,4.0*srx},new double[] {h1,vrh,arh,jrh,srh});
+			AdaptiveQuaderature y = new AdaptiveQuaderature(new double[] {vry,2.0*ary,3.0*jry,4.0*sry},new double[] {h1,vrh,arh,jrh,srh});
 			
 			Pose2d next = new Pose2d(
 					last.x + x.evaluateCos(fidelity, 0, 1, 0) - y.evaluateSin(fidelity, 0, 1, 0),
 					last.y + y.evaluateCos(fidelity, 0, 1, 0) + x.evaluateSin(fidelity, 0, 1, 0),
-					rh
+					h1 + rh
 					);
 			
 			int xcosIndex = 0,ycosIndex = 0, xsinIndex = 0, ysinIndex = 0;
@@ -92,7 +101,6 @@ public class ConstSnapLocalizer extends Localizer {
 			t.add(t2);
 			last = next;
 			h1 = last.heading;
-			l4RX = l3RX; l4RY = l3RY; l4RH = l3RH;
 			l3RX = l2RX; l3RY = l2RY; l3RH = l2RH;
 			l2RX = l1RX; l2RY = l1RY; l2RH = l1RH;
 			l1RX = rx; l1RY = ry; l1RH = rh;

@@ -48,7 +48,7 @@ public class AdaptiveQuaderature {
 	public double evaluateCos(double eps, double t1, double t2, int level) { //vel*cos(heading)
 		double s1 = (t2-t1)*(fcos(t1)+4.0*fcos((t1+t2)/2.0)+fcos(t2))/6.0;
 		double s2 = (t2-t1)*(fcos(t1)+4.0*fcos(0.75*t1+0.25*t2)+2.0*fcos(0.5*t1+0.5*t2)+4.0*fcos(0.25*t1+0.75*t2)+fcos(t2))/12.0;
-		if (Math.abs(s2-s1) <= eps || level > 10) {
+		if (Math.abs(s2-s1) <= eps || level > 13) {
 			cos.add(new timeValue(t2,cos.get(cos.size()-1).val+s2));
 			return s2;
 		}
@@ -57,7 +57,7 @@ public class AdaptiveQuaderature {
 	public double evaluateSin(double eps, double t1, double t2, int level) { //vel*sin(heading)
 		double s1 = (t2-t1)*(fsin(t1)+4.0*fsin((t1+t2)/2.0)+fsin(t2))/6.0;
 		double s2 = (t2-t1)*(fsin(t1)+4.0*fsin(0.75*t1+0.25*t2)+2.0*fsin(0.5*t1+0.5*t2)+4.0*fsin(0.25*t1+0.75*t2)+fsin(t2))/12.0;
-		if (Math.abs(s2-s1) <= eps || level > 10) {
+		if (Math.abs(s2-s1) <= eps || level > 13) {
 			sin.add(new timeValue(t2,sin.get(sin.size()-1).val+s2));
 			return s2;
 		}
