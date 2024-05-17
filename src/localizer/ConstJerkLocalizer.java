@@ -12,8 +12,10 @@ public class ConstJerkLocalizer extends Localizer {
 		double t1 = 0;
 		Pose2d last = l.get(0);
 		double h1 = last.heading;
-		double l1RH = 0, l1RX = 0, l1RY = 0;
-		double l2RH = 0, l2RX = 0, l2RY = 0;
+		double h = 1.0/(double)n;
+		double q = 0.0001;
+		double l1RH = (h1-p.getPose2d(-q).heading)*h/q, l1RX = p.getRelX(0,-q)*h/q, l1RY = p.getRelY(0,-q)*h/q;
+		double l2RH = (p.getPose2d(-q).heading-p.getPose2d(-2*q).heading)*h/q, l2RX = p.getRelX(-q,-2*q)*h/q, l2RY = p.getRelY(-q,-2*q)*h/q;
 		for (int i = 0; i < n; i++) {
 			double t2 = ((double)i+1.0)/((double) n);
 			

@@ -12,9 +12,11 @@ public class ConstAccelLocalizer extends Localizer {
 		double t1 = 0;
 		Pose2d last = l.get(0);
 		double h1 = last.heading;
-		double lastRX = 0;
-		double lastRY = 0;
-		double lastRH = 0;
+		double h = 1.0/((double)n);
+		double s = 0.0001;
+		double lastRX = (p.getRelX(0,-s)) * h/s;
+		double lastRY = (p.getRelY(0,-s)) * h/s;
+		double lastRH = (h1-p.getPose2d(-s).heading) * h/s;
 		for (int i = 0; i < n; i++) {
 			double t2 = ((double)i+1.0)/((double) n);
 			

@@ -198,10 +198,10 @@ public class LocalizerDemostrationVideo extends JPanel implements MouseListener,
 		g2.drawString("Global Error: " + globalError, dist, titleSize);
 		if (i < path.length) {
 			g2.drawString("One Time Error: " + oneTimeError, dist, titleSize + fontSize);
-			g2.drawString("Number of Itteratios: " + n, dist, titleSize + 2*fontSize);
+			g2.drawString("Number of Iterations: " + n, dist, titleSize + 2*fontSize);
 		}
 		else {
-			g2.drawString("Number of Itteratios: " + n, dist, titleSize + fontSize);
+			g2.drawString("Number of Iterations: " + n, dist, titleSize + fontSize);
 		}
 		
 		
