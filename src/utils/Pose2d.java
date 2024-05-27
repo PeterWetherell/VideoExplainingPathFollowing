@@ -22,11 +22,24 @@ public class Pose2d {
 	public Pose2d sub(Pose2d p) {
 		return new Pose2d(this.x-p.x,this.y-p.y,this.heading-p.heading);
 	}
+	public Pose2d mult(double k) {
+		return new Pose2d(x*k,y*k,heading*k);
+	}
 	public Pose2d add(Pose2d p) {
 		return new Pose2d(this.x+p.x,this.y+p.y,this.heading+p.heading);
 	}
 	public double getDist(Pose2d p2) {
 		return Math.sqrt(Math.pow(p2.x-x, 2)+Math.pow(p2.y-y, 2));
+	}
+	public void rotate(double h) {
+		double nx = x*Math.cos(h)+y*Math.sin(h);
+		double ny = y*Math.cos(h)-x*Math.sin(h);
+		x=nx;
+		y=ny;
+		heading-=h;
+		while (Math.abs(h)>Math.PI) {
+			heading -= Math.signum(h)*Math.PI*2;
+		}
 	}
 	public void norm(double d) {
 		double l = length();

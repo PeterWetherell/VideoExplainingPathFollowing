@@ -33,33 +33,11 @@ public class CubicSpline {
 		y[3] = t2.y - 3*p2.y + 2*y[0] + y[1];
 		y[2] = p2.y - y[0] - y[1] - y[3];
 	}
-	public double getRelX(double t1, double t2) {
-		double sum = 0;
-		double m = t2-t1;
-		Pose2d end = getPose2d(t1);
-		for (int i = 0; i < FIDELITY; i ++) {
-			Pose2d start = getPose2d(t1+m*((double)i+1.0)/(double)FIDELITY);
-			sum += Math.cos(start.heading)*(end.x-start.x) + Math.sin(start.heading)*(end.y-start.y);
-			end = start;
-		}
-		return sum;
-	}
-	public double getRelY(double t1, double t2) {
-		double sum = 0;
-		double m = t2-t1;
-		Pose2d end = getPose2d(t1);
-		for (int i = 0; i < FIDELITY; i ++) {
-			Pose2d start = getPose2d(t1+m*((double)i+1.0)/(double)FIDELITY);
-			sum += Math.cos(start.heading)*(end.y-start.y) - Math.sin(start.heading)*(end.x-start.x);
-			end = start;
-		}
-		return sum;
-	}
 	public Pose2d getPose2d(double t) {
 		t *= limit;
 		double p[] = getCoord(t);
 		double v[] = getVel(t);
-		return new Pose2d(p[0],p[1],Math.atan2(v[1],v[0]) + Math.toRadians(15) * Math.sin(Math.PI * t),v[0],v[1]);
+		return new Pose2d(p[0],p[1],Math.atan2(v[1],v[0]));
 	}
 	public void drawSpline(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;

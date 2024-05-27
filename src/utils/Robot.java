@@ -6,17 +6,75 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 
 public class Robot {
-	public Pose2d p;
+	static boolean scalePower = true;
+	public Pose2d p, v, maxVel = new Pose2d(480,310,9), maxAccel = new Pose2d(320,205,6);
 	public double scale = 1;
+	long lastLoop = System.nanoTime();
 	
 	public Robot(Pose2d Start) {
 		p = Start;
+		v = new Pose2d(0,0,0);
 	}
 	
-	public void update(double height, Pose2d p, Graphics g) {
-		this.p = p.clone();
-		this.p.y = height - this.p.y;
-		this.p.heading *= -1;
+	public void setPowers(double fwd, double str, double turn) {
+		long currTime = System.nanoTime();
+		double loopTime = (currTime-lastLoop)/1.0E9;
+		
+		double[] motorPowers = {fwd+str+turn,fwd-str+turn,fwd-str-turn,fwd+str-turn};
+		if (!scalePower) {
+			for (int i = 0; i < 4; i ++) {
+				motorPowers[i] = Math.min(Math.max(motorPowers[i], -1), 1);
+			}
+		}
+		else {
+			double max = 0;
+			for (int i = 0; i < 4; i ++) {
+				max = Math.max(Math.abs(motorPowers[i]), max);
+			}
+			for (int i = 0; i < 4; i ++) {
+				motorPowers[i] /= max;
+			}
+		}
+		fwd = (motorPowers[0]+motorPowers[1]+motorPowers[2]+motorPowers[3])/4.0;
+		str = (motorPowers[0]-motorPowers[1]-motorPowers[2]+motorPowers[3])/4.0;
+		turn = (motorPowers[0]+motorPowers[1]-motorPowers[2]-motorPowers[3])/4.0;
+		
+		Pose2d curVel = v.clone();
+		curVel.rotate(-p.heading); //make it a relative velocity
+		curVel.heading = v.heading;
+		
+		Pose2d accel = new Pose2d(
+				maxAccel.x*fwd,
+				maxAccel.y*str,
+				maxAccel.heading*turn
+				);
+		Pose2d deltaVel = accel.mult(loopTime);
+		curVel = curVel.add(deltaVel);
+		
+		Pose2d friction = new Pose2d(
+				 - maxAccel.x*curVel.x/maxVel.x,
+				 - maxAccel.y*curVel.y/maxVel.y,
+				 - maxAccel.heading*curVel.heading/maxVel.heading
+				);
+		friction = friction.mult(loopTime);
+		if (Math.abs(friction.x) > Math.abs(curVel.x)) {
+			friction.x = -curVel.x;
+		}
+		if (Math.abs(friction.y) > Math.abs(curVel.y)) {
+			friction.y = -curVel.y;
+		}
+		if (Math.abs(friction.heading) > Math.abs(curVel.heading)) {
+			friction.heading = -curVel.heading;
+		}
+		//
+		curVel.rotate(p.heading); //make it a global velocity
+		curVel.heading += p.heading;
+		
+		v = curVel;
+		p.add(v.mult(loopTime));
+	}
+	
+	public void update(Graphics g) {
 		drawRobot(g);
 	}
 	
