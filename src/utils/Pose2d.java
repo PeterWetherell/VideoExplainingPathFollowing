@@ -32,14 +32,11 @@ public class Pose2d {
 		return Math.sqrt(Math.pow(p2.x-x, 2)+Math.pow(p2.y-y, 2));
 	}
 	public void rotate(double h) {
-		double nx = x*Math.cos(h)+y*Math.sin(h);
-		double ny = y*Math.cos(h)-x*Math.sin(h);
+		double nx = x*Math.cos(h)-y*Math.sin(h);
+		double ny = y*Math.cos(h)+x*Math.sin(h);
 		x=nx;
 		y=ny;
-		heading-=h;
-		while (Math.abs(h)>Math.PI) {
-			heading -= Math.signum(h)*Math.PI*2;
-		}
+		heading -= h;
 	}
 	public void norm(double d) {
 		double l = length();
@@ -54,5 +51,11 @@ public class Pose2d {
 	}
 	public String toString() {
 		return "Pose2d[" + x + ", " + y + ", " + heading + "]";
+	}
+	
+	public static void main(String[] args) {
+		Pose2d test = new Pose2d(10,10,0);
+		test.rotate(Math.toRadians(45));
+		System.out.println(test);
 	}
 }

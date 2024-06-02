@@ -11,16 +11,16 @@ import utils.PID;
 import utils.Pose2d;
 import utils.Robot;
 
-public class ConstantRadiusPurePursuit extends PathFollower {
+public class ConstantRadiusPurePursuitArcs extends PathFollower {
 	Robot r;
 	ArrayList<Pose2d> p;
 	int lookAheadTarget;
 	double pixelsPerPoint = 8;
-	double radius = 100;
+	double radius = 200;
 	
 	PID fwd = new PID(0.03,0,0);
 	PID str = new PID(0.06,0,0);
-	PID turn = new PID(8,0,0.25);
+	PID turn = new PID(20, 0.0,0.0);
 	
 	@Override
 	public void setup(ArrayList<CubicSpline> s, Pose2d startPose, JFrame f) {
@@ -36,7 +36,7 @@ public class ConstantRadiusPurePursuit extends PathFollower {
 			p.add(s.get(j).getPose2d(1));
 		}
 	}
-	
+
 	boolean finishedPath = false;
 	@Override
 	public void update(Graphics2D g, JFrame j) {
@@ -46,7 +46,6 @@ public class ConstantRadiusPurePursuit extends PathFollower {
 		Pose2d target = p.get(Math.min(lookAheadTarget,p.size()-1)).clone();
 		
 		g.drawOval((int)target.x-10, (int)(j.getHeight() - target.y)-10, 20, 20);
-		g.drawOval((int)(r.p.x-radius), (int)(j.getHeight()-r.p.y-radius), (int)(2*radius), (int)(2*radius));
 		
 		Pose2d error = target.sub(r.p);
 		error.rotate(-r.p.heading);
@@ -61,14 +60,7 @@ public class ConstantRadiusPurePursuit extends PathFollower {
 		double fwdPow = fwd.update(error.x);
 		double turnPow = turn.update(error.heading);
 		
-		if (finishedPath && Math.abs(error.heading) < Math.toRadians(2)) {
-			turnPow = 0;
-		}
-		if (finishedPath && Math.abs(error.x) < 4) {
-			fwdPow = 0;
-		}
-		
-		r.setPowers(fwdPow, 0, turnPow); //pretend its a tank by making strPow 0.
+		r.setPowers(fwdPow, 0, turnPow);
 		r.drawRobot(g);
 		DrawUtil.drawLines(p,g,j);
 	}
